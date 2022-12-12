@@ -140,8 +140,9 @@ const getMinMax = () => {
   const minInput = document.querySelector('#min');
   const maxInput = document.querySelector('#max');
 
+  const singleSura = document.querySelector('#single').checked;
   const minValue = +minInput.value || 1;
-  const maxValue = +maxInput.value || 114;
+  const maxValue = singleSura ? minValue : +maxInput.value || 114;
 
   return { minInput, maxInput, minValue, maxValue };
 };
@@ -163,6 +164,7 @@ const doStuf = () => {
 
   document.querySelector('#sura').innerHTML = `${suraNumber}. ${selectedSuraName}`;
   document.querySelector('#repeat-count').innerHTML = count;
+  updateSummary();
 };
 
 const setLimitHandler = () => {
@@ -188,6 +190,20 @@ const initEventHandlers = () => {
     const incrementedCount = repeatCount(suraNumber) + 1;
     e.target.innerHTML = incrementedCount;
     localStorage.repeatCount = JSON.stringify({ ...repeatCountArray(), [suraNumber]: incrementedCount });
+    updateSummary();
+  });
+
+  document.querySelector('#single').addEventListener('click', (e) => {
+    const checked = e.target.checked;
+    if (checked) {
+      document.querySelector('#max').setAttribute('disabled', true);
+    } else {
+      document.querySelector('#max').removeAttribute('disabled');
+    }
+  });
+
+  document.querySelector('#resetAll').addEventListener('click', (e) => {
+    resetAll();
   });
 };
 
@@ -198,6 +214,22 @@ const resetCount = () => {
   }
   document.querySelector('#repeat-count').innerHTML = 0;
   localStorage.repeatCount = JSON.stringify({ ...repeatCountArray(), [suraNumber]: 0 });
+  updateSummary();
+};
+
+const updateSummary = () => {
+  const summaryHTML = Object.keys(suras)
+    .filter((num) => repeatCountArray()[num])
+    .map((num) => `<div>${num}. ${suras[num]}: ${repeatCountArray()[num]}</div>`)
+    .join('');
+
+  document.querySelector('#summary').innerHTML = summaryHTML;
+};
+
+const resetAll = () => {
+  localStorage.repeatCount = JSON.stringify({});
+  updateSummary();
+  document.querySelector('#repeat-count').innerHTML = 0;
 };
 
 setLimitHandler();

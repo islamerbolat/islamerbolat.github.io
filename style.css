@@ -23,17 +23,18 @@
   }
   
   #repeat-count {
-    text-align: center;
     font-size: 2.5rem;
-    cursor: pointer;
     user-select: none;
-        background-color: buttonface;
-      padding: 1px 6px;
-      border-width: 2px;
-      border-style: outset;
-      border-color: buttonborder;
-      margin: 0 auto 10px ;
-      width: fit-content;
+    margin: 0 auto 10px;
+    display: block;
+  }
+
+  #summary * {
+    font-size: 1rem;
+  }
+
+  .small{
+    font-size: .8rem;
   }
   
   input:invalid {
