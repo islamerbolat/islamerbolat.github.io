@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>replit</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="centered">
+    <h1>﷽</h1>
+    <p>Выберите диапазон сур</p>
+
+    <section>
+      <form action="javascript:doStuf()" class="form">
+        <input type="number" placeholder="min" name="min" id="min" min="1" max="114" pattern="\d*" />
+        <input type="number" placeholder="max" name="max" id="max" min="1" max="114" pattern="\d*" />
+        <input type="submit" value="Ok" />
+
+        <h3 id="sura">&nbsp;</h3>
+      </form>
+      <form class="form">
+        <h2 role="button" id="repeat-count">&nbsp;</h2>
+        <button type="reset" onclick="javascript:resetCount()">⟲</button>
+      </form>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
