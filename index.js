@@ -115,32 +115,30 @@ const suras = {
   114: 'Ән-Нас',
 };
 
-const repeatCountArray = () => {
-  if (!localStorage.repeatCount) {
-    localStorage.repeatCount = JSON.stringify({});
-  }
+const getSingleIsChecked = () => document.querySelector('#single').checked;
 
-  return JSON.parse(localStorage.repeatCount);
+const getRepeatCounts = () => JSON.parse(localStorage.repeatCount || {});
+
+const setRepeatCounts = (obj) => {
+  localStorage.repeatCount = JSON.stringify(obj);
 };
 
-const repeatCount = (suraNumber) => {
-  if (!repeatCountArray()[suraNumber]) {
-    localStorage.repeatCount = JSON.stringify({ ...repeatCountArray(), [suraNumber]: 0 });
-  }
+const getRepeatCountOfSura = (suraNumber) => {
+  const repeatsCounts = getRepeatCounts();
 
-  return repeatCountArray()[suraNumber];
+  return repeatsCounts[suraNumber] || 0;
 };
 
 const getCurrentSuraNumber = () => {
   const suraTitle = document.querySelector('#sura').innerHTML;
-  return suraTitle.includes('.') ? +suraTitle.split('.')[0] : 0;
+  return +suraTitle.split('.')[0] || 0;
 };
 
 const getMinMax = () => {
   const minInput = document.querySelector('#min');
   const maxInput = document.querySelector('#max');
 
-  const singleSura = document.querySelector('#single').checked;
+  const singleSura = getSingleIsChecked();
   const minValue = +minInput.value || 1;
   const maxValue = singleSura ? minValue : +maxInput.value || 114;
 
@@ -153,17 +151,22 @@ function randomInteger(min, max) {
   return Math.floor(rand);
 }
 
-const doStuf = () => {
-  document.querySelector('#sura').innerHTML = '&nbsp;';
+const doStuf = (suraNumberInitialValue) => {
+  document.querySelector('#sura').innerHTML = '';
 
   const { minValue, maxValue } = getMinMax();
 
-  const suraNumber = randomInteger(minValue, maxValue);
-  const count = repeatCount(suraNumber);
+  const suraNumber = suraNumberInitialValue || randomInteger(minValue, maxValue);
+  const count = getRepeatCountOfSura(suraNumber);
   const selectedSuraName = suras[suraNumber];
+
+  if (!selectedSuraName) {
+    return;
+  }
 
   document.querySelector('#sura').innerHTML = `${suraNumber}. ${selectedSuraName}`;
   document.querySelector('#repeat-count').innerHTML = count;
+  localStorage.suraNumber = suraNumber;
   updateSummary();
 };
 
@@ -175,36 +178,37 @@ const setLimitHandler = () => {
 
     minInput.max = maxValue;
     maxInput.min = minValue;
+
+    if (minValue > maxValue || minValue > 114 || maxValue > 114) {
+      return;
+    }
+
+    localStorage.max = maxValue;
+    localStorage.min = minValue;
   }
 
   minInput.onchange = setLimit;
   maxInput.onchange = setLimit;
 };
 
-const initEventHandlers = () => {
-  document.querySelector('#repeat-count').addEventListener('click', (e) => {
-    if (e.target.innerHTML === '&nbsp;') {
-      return;
-    }
-    const suraNumber = getCurrentSuraNumber();
-    const incrementedCount = repeatCount(suraNumber) + 1;
-    e.target.innerHTML = incrementedCount;
-    localStorage.repeatCount = JSON.stringify({ ...repeatCountArray(), [suraNumber]: incrementedCount });
-    updateSummary();
-  });
+const onSingleCheck = (suraNumberInitialValue) => {
+  const checked = getSingleIsChecked();
+  if (checked) {
+    document.querySelector('#max').setAttribute('disabled', true);
+    doStuf(suraNumberInitialValue);
+  } else {
+    document.querySelector('#max').removeAttribute('disabled');
+  }
 
-  document.querySelector('#single').addEventListener('click', (e) => {
-    const checked = e.target.checked;
-    if (checked) {
-      document.querySelector('#max').setAttribute('disabled', true);
-    } else {
-      document.querySelector('#max').removeAttribute('disabled');
-    }
-  });
+  localStorage.single = checked;
+};
 
-  document.querySelector('#resetAll').addEventListener('click', (e) => {
-    resetAll();
-  });
+const onRepeatCountBtnClick = () => {
+  const suraNumber = getCurrentSuraNumber();
+  const incrementedCount = getRepeatCountOfSura(suraNumber) + 1;
+  document.querySelector('#repeat-count').innerHTML = incrementedCount;
+  setRepeatCounts({ ...getRepeatCounts(), [suraNumber]: incrementedCount });
+  updateSummary();
 };
 
 const resetCount = () => {
@@ -213,25 +217,43 @@ const resetCount = () => {
     return;
   }
   document.querySelector('#repeat-count').innerHTML = 0;
-  localStorage.repeatCount = JSON.stringify({ ...repeatCountArray(), [suraNumber]: 0 });
+  setRepeatCounts({ ...getRepeatCounts(), [suraNumber]: 0 });
   updateSummary();
 };
 
 const updateSummary = () => {
   const summaryHTML = Object.keys(suras)
-    .filter((num) => repeatCountArray()[num])
-    .map((num) => `<div>${num}. ${suras[num]}: ${repeatCountArray()[num]}</div>`)
+    .filter((num) => getRepeatCounts()[num])
+    .map((num) => `<div>${num}. ${suras[num]}: ${getRepeatCounts()[num]}</div>`)
     .join('');
 
   document.querySelector('#summary').innerHTML = summaryHTML;
+
+  if (summaryHTML) {
+    document.querySelector('#resetAll').removeAttribute('hidden');
+  } else {
+    document.querySelector('#resetAll').setAttribute('hidden', true);
+  }
 };
 
 const resetAll = () => {
-  localStorage.repeatCount = JSON.stringify({});
+  setRepeatCounts({});
   updateSummary();
   document.querySelector('#repeat-count').innerHTML = 0;
 };
 
+const setInitialValues = () => {
+  const single = localStorage.single === 'true';
+  document.querySelector('#single').checked = single;
+  onSingleCheck(+localStorage.suraNumber);
+
+  const min = localStorage.min || 1;
+  document.querySelector('#min').value = min;
+
+  const max = localStorage.max || 114;
+  document.querySelector('#max').value = max;
+};
+
+setInitialValues();
 setLimitHandler();
-initEventHandlers();
-doStuf();
+doStuf(+localStorage.suraNumber);
