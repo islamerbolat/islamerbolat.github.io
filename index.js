@@ -117,7 +117,7 @@ const suras = {
 
 const getSingleIsChecked = () => document.querySelector('#single').checked;
 
-const getRepeatCounts = () => JSON.parse(localStorage.repeatCount || {});
+const getRepeatCounts = () => JSON.parse(localStorage.repeatCount || '{}');
 
 const setRepeatCounts = (obj) => {
   localStorage.repeatCount = JSON.stringify(obj);
