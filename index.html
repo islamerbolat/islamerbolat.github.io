@@ -17,13 +17,13 @@
         <input type="number" placeholder="max" name="max" id="max" min="1" max="114" pattern="\d*" />
         <input type="submit" value="Ok" />
         <br />
-        <label for="single"><input type="checkbox" name="single" id="single" /><small class="small">Бір сүре таңдау</small></label>
+        <label for="single" onclick="onSingleCheck()"><input type="checkbox" name="single" id="single" /><small class="small">Бір сүре таңдау</small></label>
 
         <h3 id="sura">&nbsp;</h3>
       </form>
       <form class="form">
-        <button type="button" id="repeat-count">&nbsp;</button>
-        <button type="reset" onclick="javascript:resetCount()">⟲</button>
+        <button type="button" id="repeat-count" onclick="onRepeatCountBtnClick()">&nbsp;</button>
+        <button type="reset" onclick="resetCount()">⟲</button>
       </form>
     </section>
 
@@ -32,7 +32,7 @@
       <div id="summary"></div>
     </section>
     <br />
-    <button id="resetAll" type="button">мәндерді жою</button>
+    <button id="resetAll" type="button" onclick="resetAll()">мәндерді жою</button>
 
     <script src="index.js"></script>
   </body>
